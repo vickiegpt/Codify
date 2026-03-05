@@ -986,8 +986,6 @@
 		F9FE0DAD2F59496F008DFB0E /* GGUFLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA82F59496F008DFB0E /* GGUFLoader.swift */; };
 		F9FE0DAE2F59496F008DFB0E /* GGUFDequantizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA72F59496F008DFB0E /* GGUFDequantizer.swift */; };
 		F9FE0DAF2F59496F008DFB0E /* GGUFTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA92F59496F008DFB0E /* GGUFTokenizer.swift */; };
-		FFD081BB29260B00001D9373 /* Libgit2Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD081BA29260B00001D9373 /* Libgit2Error.swift */; };
-		FFD081BC29260B00001D9373 /* Libgit2Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD081BA29260B00001D9373 /* Libgit2Error.swift */; };
 		F9FE0DB02F594A00008DFB0E /* ane_bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DB42F594A00008DFB0E /* ane_bridge.m */; };
 		F9FE0DB12F594A00008DFB0E /* ane_bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DB42F594A00008DFB0E /* ane_bridge.m */; };
 		F9FE0DB22F594A00008DFB0E /* ane_model_compiler.m in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DB72F594A00008DFB0E /* ane_model_compiler.m */; };
@@ -996,6 +994,8 @@
 		F9FE0DBC2F594A00008DFB0E /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9FE0DBA2F594A00008DFB0E /* IOSurface.framework */; };
 		F9FE0DBE2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F9FE0DBD2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf */; };
 		F9FE0DBF2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F9FE0DBD2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf */; };
+		FFD081BB29260B00001D9373 /* Libgit2Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD081BA29260B00001D9373 /* Libgit2Error.swift */; };
+		FFD081BC29260B00001D9373 /* Libgit2Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD081BA29260B00001D9373 /* Libgit2Error.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2137,7 +2137,6 @@
 		F9FE0DA72F59496F008DFB0E /* GGUFDequantizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GGUFDequantizer.swift; sourceTree = "<group>"; };
 		F9FE0DA82F59496F008DFB0E /* GGUFLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GGUFLoader.swift; sourceTree = "<group>"; };
 		F9FE0DA92F59496F008DFB0E /* GGUFTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GGUFTokenizer.swift; sourceTree = "<group>"; };
-		FFD081BA29260B00001D9373 /* Libgit2Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Libgit2Error.swift; sourceTree = "<group>"; };
 		F9FE0DB42F594A00008DFB0E /* ane_bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ane_bridge.m; sourceTree = "<group>"; };
 		F9FE0DB52F594A00008DFB0E /* ane_bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ane_bridge.h; sourceTree = "<group>"; };
 		F9FE0DB62F594A00008DFB0E /* ane_mil_gen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ane_mil_gen.h; sourceTree = "<group>"; };
@@ -2145,6 +2144,7 @@
 		F9FE0DB82F594A00008DFB0E /* ane_model_compiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ane_model_compiler.h; sourceTree = "<group>"; };
 		F9FE0DBA2F594A00008DFB0E /* IOSurface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOSurface.framework; path = System/Library/Frameworks/IOSurface.framework; sourceTree = SDKROOT; };
 		F9FE0DBD2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Qwen3.5-0.8B-Q8_0.gguf"; sourceTree = "<group>"; };
+		FFD081BA29260B00001D9373 /* Libgit2Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Libgit2Error.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2427,18 +2427,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F9FE0DB92F594A00008DFB0E /* ANE */ = {
-			isa = PBXGroup;
-			children = (
-				F9FE0DB52F594A00008DFB0E /* ane_bridge.h */,
-				F9FE0DB42F594A00008DFB0E /* ane_bridge.m */,
-				F9FE0DB62F594A00008DFB0E /* ane_mil_gen.h */,
-				F9FE0DB82F594A00008DFB0E /* ane_model_compiler.h */,
-				F9FE0DB72F594A00008DFB0E /* ane_model_compiler.m */,
-			);
-			path = ANE;
-			sourceTree = "<group>";
-		};
 		944EEBF22563C381009D77FE /* CodeApp */ = {
 			isa = PBXGroup;
 			children = (
@@ -2646,14 +2634,6 @@
 				9F170D002A89CEB800D6D7C1 /* String+throwingRemovingPercentEncoding.swift */,
 			);
 			path = Extensions;
-			sourceTree = "<group>";
-		};
-		F9FE0DC02F594A00008DFB0E /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				F9FE0DBD2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf */,
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 		94B3D55125F776A900C4F2B1 /* Resources */ = {
@@ -3440,6 +3420,26 @@
 				F97209402F46383C00DA803A /* DebuggerExtension.swift */,
 			);
 			path = Debugger;
+			sourceTree = "<group>";
+		};
+		F9FE0DB92F594A00008DFB0E /* ANE */ = {
+			isa = PBXGroup;
+			children = (
+				F9FE0DB52F594A00008DFB0E /* ane_bridge.h */,
+				F9FE0DB42F594A00008DFB0E /* ane_bridge.m */,
+				F9FE0DB62F594A00008DFB0E /* ane_mil_gen.h */,
+				F9FE0DB82F594A00008DFB0E /* ane_model_compiler.h */,
+				F9FE0DB72F594A00008DFB0E /* ane_model_compiler.m */,
+			);
+			path = ANE;
+			sourceTree = "<group>";
+		};
+		F9FE0DC02F594A00008DFB0E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F9FE0DBD2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

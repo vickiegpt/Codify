@@ -37,10 +37,6 @@ class ANEInferenceEngine {
     // Derived constants
     private let dim: Int
     private let hiddenDim: Int
-    private let nHeads: Int
-    private let nKVHeads: Int
-    private let headDim: Int
-    private let kvDim: Int
     private let ropeDim: Int
     private let ropeTheta: Float
     private let rmsEps: Float
@@ -53,16 +49,20 @@ class ANEInferenceEngine {
     private let vocabSize: Int
     private let maxSeqLen: Int
 
+    // Attention-specific dimensions (derived from actual weight shapes)
+    private let attnHeadDim: Int    // 256 (key_length)
+    private let nQHeads: Int        // 16 (Q sub-heads for differential attention)
+    private let nAttnKVHeads: Int   // 2
+    private let nOutHeads: Int      // 8 (logical output heads = nQHeads/2)
+    private let kvTotalDim: Int     // 512 (nAttnKVHeads * attnHeadDim)
+    private let attnOutDim: Int     // 2048 (nOutHeads * attnHeadDim)
+
     init(compiler: ANEModelCompiler) {
         self.compiler = compiler
         self.config = compiler.config
 
         dim = config.dim
         hiddenDim = config.hiddenDim
-        nHeads = config.nHeads
-        nKVHeads = config.nKVHeads
-        headDim = config.headDim
-        kvDim = config.kvDim
         ropeDim = config.ropeDim
         ropeTheta = config.ropeTheta
         rmsEps = config.rmsNormEps
@@ -75,6 +75,27 @@ class ANEInferenceEngine {
         vocabSize = config.vocabSize
         maxSeqLen = min(config.contextLength, 2048)
 
+        // Derive attention dimensions from the first attention layer's weights
+        var _attnHeadDim = 256
+        var _nQHeads = 16
+        var _nAttnKVHeads = 2
+        var _nOutHeads = 8
+        for lw in compiler.layerWeights {
+            if case .attention(let w) = lw {
+                _attnHeadDim = w.attnQNorm.count       // 256
+                _nQHeads = w.attnQ.outDim / _attnHeadDim  // 4096/256 = 16
+                _nAttnKVHeads = w.attnK.outDim / _attnHeadDim  // 512/256 = 2
+                _nOutHeads = w.attnOutput.inDim / _attnHeadDim // 2048/256 = 8
+                break
+            }
+        }
+        attnHeadDim = _attnHeadDim
+        nQHeads = _nQHeads
+        nAttnKVHeads = _nAttnKVHeads
+        nOutHeads = _nOutHeads
+        kvTotalDim = _nAttnKVHeads * _attnHeadDim
+        attnOutDim = _nOutHeads * _attnHeadDim
+
         initializeState()
     }
 
@@ -86,7 +107,7 @@ class ANEInferenceEngine {
 
         for l in 0..<config.nLayers {
             if config.isFullAttentionLayer(l) {
-                kvCaches.append([Float](repeating: 0, count: maxSeqLen * 2 * kvDim))
+                kvCaches.append([Float](repeating: 0, count: maxSeqLen * 2 * kvTotalDim))
             } else {
                 convStates.append([Float](repeating: 0, count: (convKernel - 1) * totalConvChannels))
                 ssmStates.append([Float](repeating: 0, count: nGroups * dState * dInnerPerGroup))
@@ -270,69 +291,86 @@ class ANEInferenceEngine {
     private func attentionForward(x: [Float], w: AttentionLayerWeights, attnIdx: Int) -> [Float] {
         let xNorm = rmsNorm(x, weight: w.attnNorm)
 
-        // Q/K/V projections
+        // Q/K/V projections (Q: [4096], K: [512], V: [512])
         var q = w.attnQ.matvec(xNorm)
         var k = w.attnK.matvec(xNorm)
         let v = w.attnV.matvec(xNorm)
 
-        // Per-head Q norm
-        for h in 0..<nHeads {
-            let off = h * headDim
-            var slice = Array(q[off..<(off + headDim)])
+        // Per-head Q norm (16 Q sub-heads, each attnHeadDim=256)
+        for h in 0..<nQHeads {
+            let off = h * attnHeadDim
+            var slice = Array(q[off..<(off + attnHeadDim)])
             slice = rmsNorm(slice, weight: w.attnQNorm)
-            for i in 0..<headDim { q[off + i] = slice[i] }
+            for i in 0..<attnHeadDim { q[off + i] = slice[i] }
         }
-        // Per-head K norm
-        for h in 0..<nKVHeads {
-            let off = h * headDim
-            var slice = Array(k[off..<(off + headDim)])
+        // Per-head K norm (2 KV heads)
+        for h in 0..<nAttnKVHeads {
+            let off = h * attnHeadDim
+            var slice = Array(k[off..<(off + attnHeadDim)])
             slice = rmsNorm(slice, weight: w.attnKNorm)
-            for i in 0..<headDim { k[off + i] = slice[i] }
+            for i in 0..<attnHeadDim { k[off + i] = slice[i] }
         }
 
-        // RoPE (partial)
-        applyRoPE(&q, nHeadsCount: nHeads)
-        applyRoPE(&k, nHeadsCount: nKVHeads)
+        // RoPE (partial, ropeDim=64 within each head of attnHeadDim=256)
+        applyRoPEAttn(&q, nHeadsCount: nQHeads)
+        applyRoPEAttn(&k, nHeadsCount: nAttnKVHeads)
 
-        // Store K/V in cache
+        // Store K/V in cache [pos][K_then_V][kvTotalDim]
         let pos = position
-        for i in 0..<kvDim {
-            kvCaches[attnIdx][pos * 2 * kvDim + i] = k[i]
-            kvCaches[attnIdx][pos * 2 * kvDim + kvDim + i] = v[i]
+        for i in 0..<kvTotalDim {
+            kvCaches[attnIdx][pos * 2 * kvTotalDim + i] = k[i]
+            kvCaches[attnIdx][pos * 2 * kvTotalDim + kvTotalDim + i] = v[i]
         }
 
-        // GQA Attention
-        let gqaGroupSize = nHeads / max(nKVHeads, 1)
-        var attnOut = [Float](repeating: 0, count: dim)
-        let scale = 1.0 / sqrt(Float(headDim))
+        // Differential GQA Attention
+        // 16 Q sub-heads → 8 output heads (pairs: sub-heads 2i,2i+1 → output head i)
+        // GQA: nOutHeads(8) / nAttnKVHeads(2) = 4 logical heads per KV head
+        let qSubPerHead = nQHeads / nOutHeads  // 2 (differential pair)
+        let gqaGroupSize = nOutHeads / max(nAttnKVHeads, 1)  // 4
+        let scale = 1.0 / sqrt(Float(attnHeadDim))
+        var attnOut = [Float](repeating: 0, count: attnOutDim)  // [2048]
 
-        for h in 0..<nHeads {
-            let kvHead = h / gqaGroupSize
-            let qOff = h * headDim
+        for oh in 0..<nOutHeads {
+            let kvHead = oh / gqaGroupSize
 
-            // Scores
-            var scores = [Float](repeating: 0, count: pos + 1)
+            // Sub-head 0 (positive)
+            let qOff0 = (oh * qSubPerHead) * attnHeadDim
+            var scores0 = [Float](repeating: 0, count: pos + 1)
             for p in 0...pos {
-                let kOff = p * 2 * kvDim + kvHead * headDim
+                let kOff = p * 2 * kvTotalDim + kvHead * attnHeadDim
                 var dot: Float = 0
-                for d in 0..<headDim {
-                    dot += q[qOff + d] * kvCaches[attnIdx][kOff + d]
+                for d in 0..<attnHeadDim {
+                    dot += q[qOff0 + d] * kvCaches[attnIdx][kOff + d]
                 }
-                scores[p] = dot * scale
+                scores0[p] = dot * scale
             }
+            softmax(&scores0)
 
-            softmax(&scores)
-
-            // Weighted V
+            // Sub-head 1 (negative, for differential)
+            let qOff1 = (oh * qSubPerHead + 1) * attnHeadDim
+            var scores1 = [Float](repeating: 0, count: pos + 1)
             for p in 0...pos {
-                let vOff = p * 2 * kvDim + kvDim + kvHead * headDim
-                for d in 0..<headDim {
-                    attnOut[qOff + d] += scores[p] * kvCaches[attnIdx][vOff + d]
+                let kOff = p * 2 * kvTotalDim + kvHead * attnHeadDim
+                var dot: Float = 0
+                for d in 0..<attnHeadDim {
+                    dot += q[qOff1 + d] * kvCaches[attnIdx][kOff + d]
+                }
+                scores1[p] = dot * scale
+            }
+            softmax(&scores1)
+
+            // Weighted V: output = attn0·V - attn1·V (differential attention)
+            let outOff = oh * attnHeadDim
+            for p in 0...pos {
+                let vOff = p * 2 * kvTotalDim + kvTotalDim + kvHead * attnHeadDim
+                let diffScore = scores0[p] - scores1[p]
+                for d in 0..<attnHeadDim {
+                    attnOut[outOff + d] += diffScore * kvCaches[attnIdx][vOff + d]
                 }
             }
         }
 
-        // Output projection + residual
+        // Output projection [2048 → 1024] + residual
         let projected = w.attnOutput.matvec(attnOut)
         var result = x
         for i in 0..<dim { result[i] += projected[i] }
@@ -362,10 +400,11 @@ class ANEInferenceEngine {
 
     // MARK: - RoPE
 
-    private func applyRoPE(_ vec: inout [Float], nHeadsCount: Int) {
-        let halfRope = ropeDim / 2
+    /// RoPE for attention layers (head_dim = attnHeadDim = 256)
+    private func applyRoPEAttn(_ vec: inout [Float], nHeadsCount: Int) {
+        let halfRope = ropeDim / 2  // 32
         for h in 0..<nHeadsCount {
-            let off = h * headDim
+            let off = h * attnHeadDim
             for i in 0..<halfRope {
                 let freq = 1.0 / pow(ropeTheta, Float(2 * i) / Float(ropeDim))
                 let theta = Float(position) * freq
