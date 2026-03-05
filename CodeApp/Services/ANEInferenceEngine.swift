@@ -459,6 +459,7 @@ class ANEInferenceEngine {
     func generate(promptTokens: [Int], tokenizer: GGUFTokenizer,
                   onToken: (Int, String) -> Bool) -> String {
         resetCache()
+        tokenizer.resetDecodeBuffer()
         var output = ""
 
         // Prefill: run layers only (skip expensive 248K classifier until we need to sample)

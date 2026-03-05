@@ -29,9 +29,46 @@ class GGUFTokenizer {
 
     private(set) var vocabSize: Int = 0
 
+    // GPT-2 byte↔unicode mapping for byte-level BPE
+    private var unicodeToByte: [Character: UInt8] = [:]
+    private var byteToUnicode: [UInt8: Character] = [:]
+
+    // Streaming byte buffer for incomplete UTF-8 sequences
+    private var pendingBytes: [UInt8] = []
+
+    // MARK: - GPT-2 Byte-Level BPE Mapping
+
+    private func buildByteUnicodeMapping() {
+        // GPT-2 byte_encoder: maps each byte to a visible Unicode character
+        // Bytes in "printable" ranges map to themselves as Unicode codepoints
+        // Other bytes map to codepoints starting at U+0100
+        var bs: [Int] = []
+        bs.append(contentsOf: Array(33...126))   // ! to ~
+        bs.append(contentsOf: Array(161...172))  // ¡ to ¬
+        bs.append(contentsOf: Array(174...255))  // ® to ÿ
+
+        var cs = bs.map { $0 }
+        var n = 0
+        for b in 0..<256 {
+            if !bs.contains(b) {
+                bs.append(b)
+                cs.append(256 + n)
+                n += 1
+            }
+        }
+
+        for i in 0..<256 {
+            let byte = UInt8(bs[i])
+            let ch = Character(Unicode.Scalar(cs[i])!)
+            byteToUnicode[byte] = ch
+            unicodeToByte[ch] = byte
+        }
+    }
+
     // MARK: - Loading from GGUF Metadata
 
     func loadFromGGUF(metadata: [String: Any]) {
+        buildByteUnicodeMapping()
         // Extract token list
         if let tokenList = metadata["tokenizer.ggml.tokens"] as? [Any] {
             tokens = tokenList.compactMap { $0 as? String }
@@ -128,21 +165,55 @@ class GGUFTokenizer {
     // MARK: - Decoding
 
     func decode(_ ids: [Int], skipSpecial: Bool = true) -> String {
-        var result = ""
+        var allBytes: [UInt8] = []
         for id in ids {
             guard id >= 0, id < tokens.count else { continue }
-            let tok = tokens[id]
             if skipSpecial && isSpecialToken(id) { continue }
-            result += unescapeToken(tok)
+            allBytes.append(contentsOf: tokenToBytes(tokens[id]))
         }
+        return String(bytes: allBytes, encoding: .utf8)
+            ?? String(allBytes.map { Character(Unicode.Scalar($0)) })
+    }
+
+    /// Decode a single token for streaming. Accumulates bytes internally
+    /// and returns valid UTF-8 text when complete sequences are available.
+    func decodeOne(_ id: Int) -> String {
+        guard id >= 0, id < tokens.count else { return "" }
+        if isSpecialToken(id) { return "" }
+
+        pendingBytes.append(contentsOf: tokenToBytes(tokens[id]))
+
+        // Try to decode as much valid UTF-8 as possible
+        var result = ""
+        var i = 0
+        while i < pendingBytes.count {
+            let byte = pendingBytes[i]
+            let seqLen: Int
+            if byte & 0x80 == 0 { seqLen = 1 }
+            else if byte & 0xE0 == 0xC0 { seqLen = 2 }
+            else if byte & 0xF0 == 0xE0 { seqLen = 3 }
+            else if byte & 0xF8 == 0xF0 { seqLen = 4 }
+            else { i += 1; continue }  // invalid leading byte, skip
+
+            if i + seqLen <= pendingBytes.count {
+                let slice = Array(pendingBytes[i..<(i + seqLen)])
+                if let s = String(bytes: slice, encoding: .utf8) {
+                    result += s
+                    i += seqLen
+                } else {
+                    i += 1  // skip invalid
+                }
+            } else {
+                break  // incomplete sequence, keep in buffer
+            }
+        }
+        pendingBytes = Array(pendingBytes[i...])
         return result
     }
 
-    func decodeOne(_ id: Int) -> String {
-        guard id >= 0, id < tokens.count else { return "" }
-        let tok = tokens[id]
-        if isSpecialToken(id) { return "" }
-        return unescapeToken(tok)
+    /// Reset the streaming byte buffer (call when starting a new generation)
+    func resetDecodeBuffer() {
+        pendingBytes = []
     }
 
     func isEOS(_ id: Int) -> Bool {
@@ -158,18 +229,25 @@ class GGUFTokenizer {
 
     private func textToInitialTokens(_ text: String) -> [Int] {
         let bytes = Array(text.utf8)
+
+        // Convert raw bytes to GPT-2 unicode characters for vocab lookup
+        let encoded: [Character] = bytes.map { b in
+            byteToUnicode[b] ?? Character(Unicode.Scalar(b))
+        }
+        let encodedStr = String(encoded)
+
         var result: [Int] = []
+        let chars = Array(encodedStr)
 
         var i = 0
-        while i < bytes.count {
+        while i < chars.count {
             var bestLen = 0
             var bestId = unknownTokenId
 
-            // Try longest match first (up to 32 bytes)
-            let maxLen = min(32, bytes.count - i)
+            // Try longest match first (up to 32 chars)
+            let maxLen = min(32, chars.count - i)
             for len in stride(from: maxLen, through: 1, by: -1) {
-                let slice = Array(bytes[i..<(i + len)])
-                guard let sub = String(bytes: slice, encoding: .utf8) else { continue }
+                let sub = String(chars[i..<(i + len)])
                 if let id = tokenToId[sub] {
                     bestLen = len
                     bestId = id
@@ -182,9 +260,13 @@ class GGUFTokenizer {
                 i += bestLen
             } else {
                 // Single byte fallback using hex escape
-                let byteStr = String(format: "<0x%02X>", bytes[i])
-                if let id = tokenToId[byteStr] {
-                    result.append(id)
+                if let b = unicodeToByte[chars[i]] {
+                    let byteStr = String(format: "<0x%02X>", b)
+                    if let id = tokenToId[byteStr] {
+                        result.append(id)
+                    } else {
+                        result.append(unknownTokenId)
+                    }
                 } else {
                     result.append(unknownTokenId)
                 }
@@ -232,20 +314,32 @@ class GGUFTokenizer {
         }
     }
 
-    private func unescapeToken(_ token: String) -> String {
-        var s = token
-        // Handle Qwen/GPT-style byte escape sequences
-        if s.hasPrefix("<0x") && s.hasSuffix(">") {
-            let hex = String(s.dropFirst(3).dropLast(1))
+    /// Convert a token string to raw bytes using GPT-2 byte mapping
+    private func tokenToBytes(_ token: String) -> [UInt8] {
+        // Handle hex byte escape: <0xHH>
+        if token.hasPrefix("<0x") && token.hasSuffix(">") {
+            let hex = String(token.dropFirst(3).dropLast(1))
             if let byte = UInt8(hex, radix: 16) {
-                return String(bytes: [byte], encoding: .utf8) ?? ""
+                return [byte]
             }
         }
-        // Handle SentencePiece-style space marker
-        s = s.replacingOccurrences(of: "▁", with: " ")
-        s = s.replacingOccurrences(of: "Ġ", with: " ")
-        s = s.replacingOccurrences(of: "Ċ", with: "\n")
-        return s
+
+        // Use the GPT-2 byte mapping if available
+        if !unicodeToByte.isEmpty {
+            var bytes: [UInt8] = []
+            for ch in token {
+                if let b = unicodeToByte[ch] {
+                    bytes.append(b)
+                } else {
+                    // Character not in mapping, encode as UTF-8 directly
+                    bytes.append(contentsOf: String(ch).utf8)
+                }
+            }
+            return bytes
+        }
+
+        // Fallback: direct UTF-8
+        return Array(token.utf8)
     }
 
     private func intValue(_ v: Any) -> Int? {
