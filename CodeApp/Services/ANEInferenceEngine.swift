@@ -22,6 +22,7 @@ class ANEInferenceEngine {
 
     // State
     private var position: Int = 0
+    private var lastHidden: [Float] = []
 
     // Mamba state: conv buffer + SSM recurrent state
     // convState[mambaIdx] = flattened [(K-1) * channels]
@@ -81,6 +82,7 @@ class ANEInferenceEngine {
         convStates = []
         ssmStates = []
         kvCaches = []
+        lastHidden = [Float](repeating: 0, count: dim)
 
         for l in 0..<config.nLayers {
             if config.isFullAttentionLayer(l) {
@@ -97,9 +99,10 @@ class ANEInferenceEngine {
         initializeState()
     }
 
-    // MARK: - Forward Pass (Single Token)
+    // MARK: - Forward Pass
 
-    func forwardStep(tokenId: Int) -> [Float] {
+    /// Run all layers without the classifier (for prefill — skips expensive 248K logit computation)
+    private func forwardLayers(tokenId: Int) {
         var x = GGUFDequantizer.q8_0EmbedLookup(
             w: compiler.embeddingPtr, tokenId: tokenId, dim: dim)
 
@@ -117,10 +120,14 @@ class ANEInferenceEngine {
             }
         }
 
-        // Final RMSNorm
-        x = rmsNorm(x, weight: compiler.rmsFinalWeight)
+        lastHidden = x
+        position += 1
+    }
 
-        // Classifier (tied with embedding weights)
+    /// Compute logits from the last hidden state (expensive: 248K dot products)
+    private func computeLogits() -> [Float] {
+        let x = rmsNorm(lastHidden, weight: compiler.rmsFinalWeight)
+
         var logits = [Float](repeating: 0, count: vocabSize)
         x.withUnsafeBufferPointer { xBuf in
             logits.withUnsafeMutableBufferPointer { yBuf in
@@ -130,9 +137,13 @@ class ANEInferenceEngine {
                     outDim: vocabSize, inDim: dim)
             }
         }
-
-        position += 1
         return logits
+    }
+
+    /// Full forward step: layers + classifier
+    func forwardStep(tokenId: Int) -> [Float] {
+        forwardLayers(tokenId: tokenId)
+        return computeLogits()
     }
 
     // MARK: - Mamba Layer Forward
@@ -192,10 +203,25 @@ class ANEInferenceEngine {
     // MARK: - Causal Conv1D
 
     private func causalConv1d(input: [Float], mambaIdx: Int, weight: [Float]) -> [Float] {
-        let K = convKernel
-        let C = totalConvChannels
+        let K = convKernel  // 4
+        let C = totalConvChannels  // 6144
 
-        // Shift conv state left by C, append new input
+        // Compute conv output FIRST using current state + new input
+        // State holds last K-1=3 positions: [t-3, t-2, t-1]
+        // weight layout: [channels, kernel] with ne0=K, ne1=C
+        var output = [Float](repeating: 0, count: C)
+        for ch in 0..<C {
+            var sum: Float = 0
+            // History from state (kernel positions 0..K-2)
+            for k in 0..<(K - 1) {
+                sum += weight[ch * K + k] * convStates[mambaIdx][k * C + ch]
+            }
+            // Current input (kernel position K-1)
+            sum += weight[ch * K + (K - 1)] * input[ch]
+            output[ch] = sum
+        }
+
+        // THEN update state: shift left, store new input at end
         if K > 2 {
             for i in 0..<((K - 2) * C) {
                 convStates[mambaIdx][i] = convStates[mambaIdx][i + C]
@@ -203,18 +229,6 @@ class ANEInferenceEngine {
         }
         for i in 0..<C {
             convStates[mambaIdx][(K - 2) * C + i] = input[i]
-        }
-
-        // Compute depthwise convolution
-        // weight layout: [channels, kernel] with ne0=K, ne1=C
-        var output = [Float](repeating: 0, count: C)
-        for ch in 0..<C {
-            var sum: Float = 0
-            for k in 0..<(K - 1) {
-                sum += weight[ch * K + k] * convStates[mambaIdx][k * C + ch]
-            }
-            sum += weight[ch * K + (K - 1)] * input[ch]
-            output[ch] = sum
         }
 
         return output
@@ -227,9 +241,11 @@ class ANEInferenceEngine {
         var y = [Float](repeating: 0, count: ssmInner)
 
         for g in 0..<nGroups {
-            let aVal = -exp(A[g])
+            // A in log-space: log_A = -softplus(ssm_a[g]), always negative
+            // dA = exp(dt * log_A) = exp(-dt * softplus(ssm_a[g])), in (0, 1) for decay
+            let logA = -log(1.0 + exp(A[g]))  // -softplus(ssm_a)
             let dtVal = dt[g]
-            let dA = exp(dtVal * aVal)
+            let dA = exp(dtVal * logA)
 
             for j in 0..<dInnerPerGroup {
                 let ch = g * dInnerPerGroup + j
@@ -406,11 +422,12 @@ class ANEInferenceEngine {
         resetCache()
         var output = ""
 
-        // Prefill
-        var lastLogits = [Float]()
+        // Prefill: run layers only (skip expensive 248K classifier until we need to sample)
         for token in promptTokens {
-            lastLogits = forwardStep(tokenId: token)
+            forwardLayers(tokenId: token)
         }
+        // Compute logits only for the last prompt token
+        var lastLogits = computeLogits()
 
         // Autoregressive generation
         for _ in 0..<maxTokens {
