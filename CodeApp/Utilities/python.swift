@@ -8,11 +8,11 @@
 import Foundation
 import ios_system
 
-// Link to C symbols from Wasmer XCFramework without a bridging header
-@_silgen_name("wasmer_python_execute")
-func wasmer_python_execute(
-    _ pythonBytes: UnsafePointer<UInt8>,
-    _ pythonBytesLen: Int,
+// Import C function from Wasmer XCFramework
+@_silgen_name("wasmer_execute")
+func wasmer_python_run(
+    _ wasmBytes: UnsafePointer<UInt8>,
+    _ wasmBytesLen: Int,
     _ args: UnsafePointer<UnsafePointer<Int8>?>?,
     _ argsLen: Int,
     _ stdinFd: Int32,
@@ -61,7 +61,7 @@ public func swift_python(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePo
     return pythonData.withUnsafeBytes { buf -> Int32 in
         guard let base = buf.baseAddress?.assumingMemoryBound(to: UInt8.self) else { return -1 }
         return cStrings.withUnsafeBufferPointer { ptr in
-            wasmer_python_execute(base, buf.count, ptr.baseAddress, argsArray.count, stdinFD, stdoutFD, stderrFD)
+            wasmer_python_run(base, buf.count, ptr.baseAddress, argsArray.count, stdinFD, stdoutFD, stderrFD)
         }
     }
 }
@@ -93,7 +93,7 @@ public func swift_pip(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePoint
     return pythonData.withUnsafeBytes { buf -> Int32 in
         guard let base = buf.baseAddress?.assumingMemoryBound(to: UInt8.self) else { return -1 }
         return cStrings.withUnsafeBufferPointer { ptr in
-            wasmer_python_execute(base, buf.count, ptr.baseAddress, args.count, stdinFD, stdoutFD, stderrFD)
+            wasmer_python_run(base, buf.count, ptr.baseAddress, args.count, stdinFD, stdoutFD, stderrFD)
         }
     }
 }

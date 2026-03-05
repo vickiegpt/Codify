@@ -53,7 +53,7 @@ Run:
 ./build_python_xcframework.sh
 ```
 
-This produces `WasmerPython.xcframework` that exposes a Python-focused C API in `include/wasmer_python.h` while reusing the same static library.
+This produces `WasmerPython.xcframework` that exposes the same C API (`include/wasmer_ios.h`) and reuses the same static library.
 
 ### Add a Python WASM runtime
 
@@ -66,7 +66,7 @@ Minimal wrapper to forward pipes and argv to Python WASM:
 ```swift
 import Foundation
 
-// Bridging header should import: #include "wasmer_python.h"
+// Bridging header should import: #include "wasmer_ios.h"
 
 @_cdecl("python")
 public func swift_python(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>!) -> Int32 {
@@ -85,7 +85,7 @@ public func swift_python(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePo
     // Call into the runtime
     return data.withUnsafeBytes { buf -> Int32 in
         let ptr = buf.bindMemory(to: UInt8.self).baseAddress!
-        return wasmer_python_execute(ptr, data.count, argv, Int(argc), stdinFD, stdoutFD, stderrFD)
+        return wasmer_execute(ptr, data.count, argv, Int(argc), stdinFD, stdoutFD, stderrFD)
     }
 }
 ```

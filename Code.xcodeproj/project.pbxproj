@@ -804,6 +804,8 @@
 		94A77820257BC5AA008FE7B2 /* MainScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94A7781F257BC5AA008FE7B2 /* MainScene.swift */; };
 		94A7782D257BCEE2008FE7B2 /* getRootDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94A7782C257BCEE2008FE7B2 /* getRootDirectory.swift */; };
 		94A7FFB3268D085300369147 /* BottomBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94A7FFB2268D085300369147 /* BottomBar.swift */; };
+		94AA00022E7F886A00BBCC02 /* node.wasm in Resources */ = {isa = PBXBuildFile; fileRef = 94AA00012E7F886A00BBCC01 /* node.wasm */; };
+		94AA00032E7F886A00BBCC03 /* node.wasm in Resources */ = {isa = PBXBuildFile; fileRef = 94AA00012E7F886A00BBCC01 /* node.wasm */; };
 		94B3D65925F776AA00C4F2B1 /* cacert.pem in Resources */ = {isa = PBXBuildFile; fileRef = 94B3D5D525F776A900C4F2B1 /* cacert.pem */; };
 		94B3D6DE25F77AFE00C4F2B1 /* Library in Resources */ = {isa = PBXBuildFile; fileRef = 94B3D6DD25F77AFE00C4F2B1 /* Library */; };
 		94B3DDF1260344E800C4F2B1 /* Color+init.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94B3DDF0260344E700C4F2B1 /* Color+init.swift */; };
@@ -960,8 +962,40 @@
 		9FE3E2AA298A169300F63DD0 /* Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 9FE3E2A9298A169300F63DD0 /* Dynamic */; };
 		9FE3E2AC298A169B00F63DD0 /* SwiftGit2 in Frameworks */ = {isa = PBXBuildFile; productRef = 9FE3E2AB298A169A00F63DD0 /* SwiftGit2 */; };
 		9FE3E2AD298A16A300F63DD0 /* NMSSH.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 942E321128093CA600233441 /* NMSSH.xcframework */; };
+		AAB10001302B000100AABB01 /* VibeCodingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAB10005302B000100AABB01 /* VibeCodingView.swift */; };
+		AAB10002302B000100AABB01 /* VibeCodingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAB10005302B000100AABB01 /* VibeCodingView.swift */; };
+		F97209422F46383C00DA803A /* DebuggerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97209402F46383C00DA803A /* DebuggerExtension.swift */; };
+		F97209432F46383C00DA803A /* DebuggerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97209402F46383C00DA803A /* DebuggerExtension.swift */; };
+		F97209452F4638C200DA803A /* DebuggerSidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97209442F4638C200DA803A /* DebuggerSidebarView.swift */; };
+		F97209462F4638C200DA803A /* DebuggerSidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97209442F4638C200DA803A /* DebuggerSidebarView.swift */; };
+		F97209492F46390B00DA803A /* DebuggerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97209472F46390B00DA803A /* DebuggerService.swift */; };
+		F972094B2F46390B00DA803A /* DebuggerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97209472F46390B00DA803A /* DebuggerService.swift */; };
+		F972094F2F46395B00DA803A /* WasminspectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F972094E2F46395B00DA803A /* WasminspectService.swift */; };
+		F97209502F46395B00DA803A /* WasminspectMIAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F972094D2F46395B00DA803A /* WasminspectMIAdapter.swift */; };
+		F97209512F46395B00DA803A /* WasminspectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F972094E2F46395B00DA803A /* WasminspectService.swift */; };
+		F97209522F46395B00DA803A /* WasminspectMIAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F972094D2F46395B00DA803A /* WasminspectMIAdapter.swift */; };
+		F9FE0DA12F5948E0008DFB0E /* ANEInferenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0D9E2F5948E0008DFB0E /* ANEInferenceEngine.swift */; };
+		F9FE0DA22F5948E0008DFB0E /* ANELLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0D9F2F5948E0008DFB0E /* ANELLMService.swift */; };
+		F9FE0DA32F5948E0008DFB0E /* ANEModelCompiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA02F5948E0008DFB0E /* ANEModelCompiler.swift */; };
+		F9FE0DA42F5948E0008DFB0E /* ANEInferenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0D9E2F5948E0008DFB0E /* ANEInferenceEngine.swift */; };
+		F9FE0DA52F5948E0008DFB0E /* ANELLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0D9F2F5948E0008DFB0E /* ANELLMService.swift */; };
+		F9FE0DA62F5948E0008DFB0E /* ANEModelCompiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA02F5948E0008DFB0E /* ANEModelCompiler.swift */; };
+		F9FE0DAA2F59496F008DFB0E /* GGUFLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA82F59496F008DFB0E /* GGUFLoader.swift */; };
+		F9FE0DAB2F59496F008DFB0E /* GGUFDequantizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA72F59496F008DFB0E /* GGUFDequantizer.swift */; };
+		F9FE0DAC2F59496F008DFB0E /* GGUFTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA92F59496F008DFB0E /* GGUFTokenizer.swift */; };
+		F9FE0DAD2F59496F008DFB0E /* GGUFLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA82F59496F008DFB0E /* GGUFLoader.swift */; };
+		F9FE0DAE2F59496F008DFB0E /* GGUFDequantizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA72F59496F008DFB0E /* GGUFDequantizer.swift */; };
+		F9FE0DAF2F59496F008DFB0E /* GGUFTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DA92F59496F008DFB0E /* GGUFTokenizer.swift */; };
 		FFD081BB29260B00001D9373 /* Libgit2Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD081BA29260B00001D9373 /* Libgit2Error.swift */; };
 		FFD081BC29260B00001D9373 /* Libgit2Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD081BA29260B00001D9373 /* Libgit2Error.swift */; };
+		F9FE0DB02F594A00008DFB0E /* ane_bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DB42F594A00008DFB0E /* ane_bridge.m */; };
+		F9FE0DB12F594A00008DFB0E /* ane_bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DB42F594A00008DFB0E /* ane_bridge.m */; };
+		F9FE0DB22F594A00008DFB0E /* ane_model_compiler.m in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DB72F594A00008DFB0E /* ane_model_compiler.m */; };
+		F9FE0DB32F594A00008DFB0E /* ane_model_compiler.m in Sources */ = {isa = PBXBuildFile; fileRef = F9FE0DB72F594A00008DFB0E /* ane_model_compiler.m */; };
+		F9FE0DBB2F594A00008DFB0E /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9FE0DBA2F594A00008DFB0E /* IOSurface.framework */; };
+		F9FE0DBC2F594A00008DFB0E /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9FE0DBA2F594A00008DFB0E /* IOSurface.framework */; };
+		F9FE0DBE2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F9FE0DBD2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf */; };
+		F9FE0DBF2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F9FE0DBD2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1989,6 +2023,7 @@
 		94A7781F257BC5AA008FE7B2 /* MainScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainScene.swift; sourceTree = "<group>"; };
 		94A7782C257BCEE2008FE7B2 /* getRootDirectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = getRootDirectory.swift; sourceTree = "<group>"; };
 		94A7FFB2268D085300369147 /* BottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomBar.swift; sourceTree = "<group>"; };
+		94AA00012E7F886A00BBCC01 /* node.wasm */ = {isa = PBXFileReference; lastKnownFileType = file; path = node.wasm; sourceTree = "<group>"; };
 		94B3D5D525F776A900C4F2B1 /* cacert.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cacert.pem; sourceTree = "<group>"; };
 		94B3D6DD25F77AFE00C4F2B1 /* Library */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Library; sourceTree = "<group>"; };
 		94B3DDF0260344E700C4F2B1 /* Color+init.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+init.swift"; sourceTree = "<group>"; };
@@ -2090,7 +2125,26 @@
 		9FD5BD00292A08D600F20C4B /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		9FE3E292298A14BC00F63DD0 /* CodeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CodeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FE3E294298A14BC00F63DD0 /* CodeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeUITests.swift; sourceTree = "<group>"; };
+		AAB10005302B000100AABB01 /* VibeCodingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeCodingView.swift; sourceTree = "<group>"; };
+		F97209402F46383C00DA803A /* DebuggerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebuggerExtension.swift; sourceTree = "<group>"; };
+		F97209442F4638C200DA803A /* DebuggerSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebuggerSidebarView.swift; sourceTree = "<group>"; };
+		F97209472F46390B00DA803A /* DebuggerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebuggerService.swift; sourceTree = "<group>"; };
+		F972094D2F46395B00DA803A /* WasminspectMIAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WasminspectMIAdapter.swift; sourceTree = "<group>"; };
+		F972094E2F46395B00DA803A /* WasminspectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WasminspectService.swift; sourceTree = "<group>"; };
+		F9FE0D9E2F5948E0008DFB0E /* ANEInferenceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ANEInferenceEngine.swift; sourceTree = "<group>"; };
+		F9FE0D9F2F5948E0008DFB0E /* ANELLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ANELLMService.swift; sourceTree = "<group>"; };
+		F9FE0DA02F5948E0008DFB0E /* ANEModelCompiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ANEModelCompiler.swift; sourceTree = "<group>"; };
+		F9FE0DA72F59496F008DFB0E /* GGUFDequantizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GGUFDequantizer.swift; sourceTree = "<group>"; };
+		F9FE0DA82F59496F008DFB0E /* GGUFLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GGUFLoader.swift; sourceTree = "<group>"; };
+		F9FE0DA92F59496F008DFB0E /* GGUFTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GGUFTokenizer.swift; sourceTree = "<group>"; };
 		FFD081BA29260B00001D9373 /* Libgit2Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Libgit2Error.swift; sourceTree = "<group>"; };
+		F9FE0DB42F594A00008DFB0E /* ane_bridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ane_bridge.m; sourceTree = "<group>"; };
+		F9FE0DB52F594A00008DFB0E /* ane_bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ane_bridge.h; sourceTree = "<group>"; };
+		F9FE0DB62F594A00008DFB0E /* ane_mil_gen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ane_mil_gen.h; sourceTree = "<group>"; };
+		F9FE0DB72F594A00008DFB0E /* ane_model_compiler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ane_model_compiler.m; sourceTree = "<group>"; };
+		F9FE0DB82F594A00008DFB0E /* ane_model_compiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ane_model_compiler.h; sourceTree = "<group>"; };
+		F9FE0DBA2F594A00008DFB0E /* IOSurface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOSurface.framework; path = System/Library/Frameworks/IOSurface.framework; sourceTree = SDKROOT; };
+		F9FE0DBD2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Qwen3.5-0.8B-Q8_0.gguf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2145,6 +2199,7 @@
 				947BBC9E2C12ED7E00FFD0C5 /* TreeSitterSQLRunestone in Frameworks */,
 				947BBCAA2C12ED7E00FFD0C5 /* TreeSitterYAMLRunestone in Frameworks */,
 				94465DDC28094920001DACDF /* NMSSH.xcframework in Frameworks */,
+				F9FE0DBB2F594A00008DFB0E /* IOSurface.framework in Frameworks */,
 			);
 		};
 		94369AF925E3B933008419A0 /* Frameworks */ = {
@@ -2209,6 +2264,7 @@
 				947BBCBE2C12F5A000FFD0C5 /* TreeSitterCSSRunestone in Frameworks */,
 				947BBCEE2C12F5A800FFD0C5 /* TreeSitterSvelteRunestone in Frameworks */,
 				947BBCCA2C12F5A200FFD0C5 /* TreeSitterJavaRunestone in Frameworks */,
+				F9FE0DBC2F594A00008DFB0E /* IOSurface.framework in Frameworks */,
 			);
 		};
 		9FE3E28F298A14BC00F63DD0 /* Frameworks */ = {
@@ -2240,14 +2296,23 @@
 			isa = PBXGroup;
 			children = (
 				1C9606B22EAA93950033D6E2 /* AgentService.swift */,
+				F9FE0D9E2F5948E0008DFB0E /* ANEInferenceEngine.swift */,
+				F9FE0D9F2F5948E0008DFB0E /* ANELLMService.swift */,
+				F9FE0DA02F5948E0008DFB0E /* ANEModelCompiler.swift */,
 				1C9606AF2EA9EA5D0033D6E2 /* CoreMLModelHandler.swift */,
 				1C9606B52EAA93990033D6E2 /* InlineCompletionService.swift */,
+				F97209472F46390B00DA803A /* DebuggerService.swift */,
 				1C4C8CF72EA866AF008E5E33 /* ExtensionInstaller.swift */,
 				1C9606AC2EA9D0340033D6E2 /* CoreMLInference.swift */,
 				1C9606A92EA9D0150033D6E2 /* LLMTokenizer.swift */,
+				F9FE0DA72F59496F008DFB0E /* GGUFDequantizer.swift */,
+				F9FE0DA82F59496F008DFB0E /* GGUFLoader.swift */,
+				F9FE0DA92F59496F008DFB0E /* GGUFTokenizer.swift */,
 				1C4C8D042EA88FF2008E5E33 /* CoreMLLLMService.swift */,
 				1C4C8D052EA88FF2008E5E33 /* VISXService.swift */,
 				1C4C8CF82EA866AF008E5E33 /* MarketplaceService.swift */,
+				F972094D2F46395B00DA803A /* WasminspectMIAdapter.swift */,
+				F972094E2F46395B00DA803A /* WasminspectService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -2271,6 +2336,7 @@
 		24509F1455D67D501EFBD28C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F9FE0DBA2F594A00008DFB0E /* IOSurface.framework */,
 				942E321128093CA600233441 /* NMSSH.xcframework */,
 				945E7E3727CA79C900BA1D95 /* NodeMobile.xcframework */,
 			);
@@ -2361,9 +2427,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		F9FE0DB92F594A00008DFB0E /* ANE */ = {
+			isa = PBXGroup;
+			children = (
+				F9FE0DB52F594A00008DFB0E /* ane_bridge.h */,
+				F9FE0DB42F594A00008DFB0E /* ane_bridge.m */,
+				F9FE0DB62F594A00008DFB0E /* ane_mil_gen.h */,
+				F9FE0DB82F594A00008DFB0E /* ane_model_compiler.h */,
+				F9FE0DB72F594A00008DFB0E /* ane_model_compiler.m */,
+			);
+			path = ANE;
+			sourceTree = "<group>";
+		};
 		944EEBF22563C381009D77FE /* CodeApp */ = {
 			isa = PBXGroup;
 			children = (
+				F9FE0DB92F594A00008DFB0E /* ANE */,
 				1C4C8CF92EA866AF008E5E33 /* Services */,
 				9FC03E762920D79400DECD1B /* Constants */,
 				9F3C2DF0291CAD6500BFF14C /* Containers */,
@@ -2448,6 +2527,7 @@
 			isa = PBXGroup;
 			children = (
 				945AEA3427ECCB3D00BA193E /* NodeMobile.xcframework */,
+				94AA00012E7F886A00BBCC01 /* node.wasm */,
 			);
 			path = NodeJS;
 			sourceTree = "<group>";
@@ -2568,9 +2648,18 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		F9FE0DC02F594A00008DFB0E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F9FE0DBD2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		94B3D55125F776A900C4F2B1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F9FE0DC02F594A00008DFB0E /* Models */,
 				94EF4FDB2C6DF80700994D9C /* monaco-textmate.bundle */,
 				94EF4FD92C6DF6A900994D9C /* python-lsp */,
 				9424437D2C6E337B00BC862F /* java-lsp */,
@@ -3015,6 +3104,7 @@
 		9F046C3729223CC000BDE4E9 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				F97209412F46383C00DA803A /* Debugger */,
 				1C4C8E992EA9878A008E5E33 /* VISXPackages */,
 				1C4C8E922EA89089008E5E33 /* ChatAssistant */,
 				1C4C8CDA2EA86398008E5E33 /* ExtensionsMarketplace */,
@@ -3062,6 +3152,7 @@
 				1C4C8DD02EA89040008E5E33 /* CompactSidebar.swift */,
 				1C4C8DD12EA89040008E5E33 /* DebugMenu.swift */,
 				1C4C8DD22EA89040008E5E33 /* DescriptionText.swift */,
+				F97209442F4638C200DA803A /* DebuggerSidebarView.swift */,
 				1C4C8DD32EA89040008E5E33 /* DirectoryPickerView.swift */,
 				1C4C8DD42EA89040008E5E33 /* DocumentPickerView.swift */,
 				1C4C8DD52EA89040008E5E33 /* EditorContextMenu.swift */,
@@ -3119,6 +3210,7 @@
 				1C4C8E092EA89040008E5E33 /* TextEditorWithPlaceholder.swift */,
 				1C4C8E0A2EA89040008E5E33 /* TopBar.swift */,
 				1C4C8E0B2EA89040008E5E33 /* ViewRepresentable.swift */,
+				AAB10005302B000100AABB01 /* VibeCodingView.swift */,
 				1C4C8E0C2EA89040008E5E33 /* VISXPackageManager.swift */,
 			);
 			path = Views;
@@ -3340,6 +3432,14 @@
 				9FE3E294298A14BC00F63DD0 /* CodeUITests.swift */,
 			);
 			path = CodeUITests;
+			sourceTree = "<group>";
+		};
+		F97209412F46383C00DA803A /* Debugger */ = {
+			isa = PBXGroup;
+			children = (
+				F97209402F46383C00DA803A /* DebuggerExtension.swift */,
+			);
+			path = Debugger;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -3606,6 +3706,8 @@
 				947515E42E7E886A00822B33 /* Iconv2.icon in Resources */,
 				941969A3280316C7008AAEB2 /* extraCommandsDictionary.plist in Resources */,
 				941969A4280316C7008AAEB2 /* npm.bundle in Resources */,
+				94AA00022E7F886A00BBCC02 /* node.wasm in Resources */,
+				F9FE0DBE2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf in Resources */,
 				941969A6280316C7008AAEB2 /* terminal.bundle in Resources */,
 				941969A7280316C7008AAEB2 /* LaunchScreen.storyboard in Resources */,
 				941969A8280316C7008AAEB2 /* Assets.xcassets in Resources */,
@@ -3640,6 +3742,8 @@
 				941CF5FB2641CBDA001199C0 /* Settings.bundle in Resources */,
 				948D12002583F20D008F877A /* extraCommandsDictionary.plist in Resources */,
 				94369B4A25EAB262008419A0 /* npm.bundle in Resources */,
+				94AA00032E7F886A00BBCC03 /* node.wasm in Resources */,
+				F9FE0DBF2F594A00008DFB0E /* Qwen3.5-0.8B-Q8_0.gguf in Resources */,
 				94B3D6DE25F77AFE00C4F2B1 /* Library in Resources */,
 				948D127C2583F734008F877A /* terminal.bundle in Resources */,
 				94A56835257CC60E008A6530 /* LaunchScreen.storyboard in Resources */,
@@ -3706,6 +3810,9 @@
 				1C4C8CFF2EA86730008E5E33 /* ExtensionsContainer.swift in Sources */,
 				9FA1227A2A8B6C9700E7B417 /* ActivityBarManager.swift in Sources */,
 				9FA1227D2A8E03CC00E7B417 /* LocalGitCredentialsHelper.swift in Sources */,
+				F9FE0DAD2F59496F008DFB0E /* GGUFLoader.swift in Sources */,
+				F9FE0DAE2F59496F008DFB0E /* GGUFDequantizer.swift in Sources */,
+				F9FE0DAF2F59496F008DFB0E /* GGUFTokenizer.swift in Sources */,
 				94196940280316C7008AAEB2 /* LocalFileSystemProvider.swift in Sources */,
 				9FC03E67291F21BD00DECD1B /* SourceControlError.swift in Sources */,
 				94196944280316C7008AAEB2 /* getRootDirectory.swift in Sources */,
@@ -3730,6 +3837,7 @@
 				94196958280316C7008AAEB2 /* wasm.swift in Sources */,
 				9F29759D2A1F488E007FDB3D /* deferredRendering.swift in Sources */,
 				94196959280316C7008AAEB2 /* SearchManager.swift in Sources */,
+				F97209452F4638C200DA803A /* DebuggerSidebarView.swift in Sources */,
 				9419695A280316C7008AAEB2 /* ArchiveDir.swift in Sources */,
 				9FC6737F2AA03A4800346FD7 /* RemotePortForwardSection.swift in Sources */,
 				9F046C3629222D8E00BDE4E9 /* ExtensionManager.swift in Sources */,
@@ -3814,10 +3922,15 @@
 				94196963280316C7008AAEB2 /* RemoteContainer.swift in Sources */,
 				94196964280316C7008AAEB2 /* CloudCodeExecutionManager.swift in Sources */,
 				94FF3372284348F1003DE5DD /* KBWebViewBase.m in Sources */,
+				F9FE0DB12F594A00008DFB0E /* ane_bridge.m in Sources */,
+				F9FE0DB32F594A00008DFB0E /* ane_model_compiler.m in Sources */,
 				9F046C3E29223E1500BDE4E9 /* CodeAppExtension.swift in Sources */,
 				94196965280316C7008AAEB2 /* String+toCString.swift in Sources */,
 				9F3C2DF8291CCE9A00BFF14C /* Remote.swift in Sources */,
 				94BEF1322B74AEBD003BBF5D /* UIFont+YYAdd.m in Sources */,
+				F9FE0DA12F5948E0008DFB0E /* ANEInferenceEngine.swift in Sources */,
+				F9FE0DA22F5948E0008DFB0E /* ANELLMService.swift in Sources */,
+				F9FE0DA32F5948E0008DFB0E /* ANEModelCompiler.swift in Sources */,
 				94196967280316C7008AAEB2 /* Executor.swift in Sources */,
 				94196969280316C7008AAEB2 /* CodeApp.swift in Sources */,
 				9FC673852AA068EE00346FD7 /* PortForwardServiceProvider.swift in Sources */,
@@ -3827,6 +3940,8 @@
 				949D788B2C33DC3F006D7480 /* AppExtensionError.swift in Sources */,
 				9419696D280316C7008AAEB2 /* DirectoryFolderMonitor.swift in Sources */,
 				948A5FEA2A87B09500303C12 /* NSError+init.swift in Sources */,
+				F97209512F46395B00DA803A /* WasminspectService.swift in Sources */,
+				F97209522F46395B00DA803A /* WasminspectMIAdapter.swift in Sources */,
 				9FD5BCEA29238B6C00F20C4B /* TerminalExtension.swift in Sources */,
 				9419696F280316C7008AAEB2 /* FileSystemProvider.swift in Sources */,
 				9474D2952B6B461E00CCC530 /* MonacoImplementation.swift in Sources */,
@@ -3834,6 +3949,7 @@
 				94196972280316C7008AAEB2 /* KeychainWrapper.swift in Sources */,
 				942ACB9E281312900067114D /* SpellChecker.swift in Sources */,
 				1C4C8E932EA89089008E5E33 /* ChatExtension.swift in Sources */,
+				AAB10001302B000100AABB01 /* VibeCodingView.swift in Sources */,
 				94E6CC7C2806FBAF00939E4F /* SFTPFileSystemProvider.swift in Sources */,
 				94196974280316C7008AAEB2 /* LocalGitServiceProvider.swift in Sources */,
 				9474D2982B6B4B1300CCC530 /* EditorImplemenationView.swift in Sources */,
@@ -3863,7 +3979,9 @@
 				1C9606B72EAA93990033D6E2 /* InlineCompletionService.swift in Sources */,
 				94196984280316C7008AAEB2 /* MainApp.swift in Sources */,
 				9FD0FAF12938A14C007170F5 /* EncodingMenu.swift in Sources */,
+				F97209432F46383C00DA803A /* DebuggerExtension.swift in Sources */,
 				9FA122612A8B29FB00E7B417 /* MonacoEditorExtension.swift in Sources */,
+				F972094B2F46390B00DA803A /* DebuggerService.swift in Sources */,
 				9FC03E752920CF1700DECD1B /* Notification.swift in Sources */,
 				9FA1225D2A8B209500E7B417 /* CodeAppContributionPointManager.swift in Sources */,
 				947313132BDFB80D004A9960 /* ExtensionCommunicationHelper.swift in Sources */,
@@ -3914,6 +4032,9 @@
 				9419692B2802AB88008AAEB2 /* LocalFileSystemProvider.swift in Sources */,
 				9FC03E66291F21BD00DECD1B /* SourceControlError.swift in Sources */,
 				94A7782D257BCEE2008FE7B2 /* getRootDirectory.swift in Sources */,
+				F9FE0DAA2F59496F008DFB0E /* GGUFLoader.swift in Sources */,
+				F9FE0DAB2F59496F008DFB0E /* GGUFDequantizer.swift in Sources */,
+				F9FE0DAC2F59496F008DFB0E /* GGUFTokenizer.swift in Sources */,
 				9FC673812AA057F100346FD7 /* PortForwardContainer.swift in Sources */,
 				94A777E0257B8D8E008FE7B2 /* SourceControlContainer.swift in Sources */,
 				94C893E6279D0C3000DFBF29 /* shortcutsMapping.swift in Sources */,
@@ -3938,6 +4059,7 @@
 				1C4C8E5E2EA89040008E5E33 /* CompactSidebar.swift in Sources */,
 				1C4C8E5F2EA89040008E5E33 /* RemoteCreateSection.swift in Sources */,
 				1C4C8E602EA89040008E5E33 /* SettingsView.swift in Sources */,
+				F97209462F4638C200DA803A /* DebuggerSidebarView.swift in Sources */,
 				1C4C8E612EA89040008E5E33 /* InfiniteProgressView.swift in Sources */,
 				1C4C8E622EA89040008E5E33 /* RightPanelView.swift in Sources */,
 				1C4C8E632EA89040008E5E33 /* ActivityBarItemView.swift in Sources */,
@@ -4022,10 +4144,15 @@
 				9437153F26BF9FC3000376FB /* RemoteContainer.swift in Sources */,
 				94A77819257BC332008FE7B2 /* CloudCodeExecutionManager.swift in Sources */,
 				94FF3371284348F1003DE5DD /* KBWebViewBase.m in Sources */,
+				F9FE0DB02F594A00008DFB0E /* ane_bridge.m in Sources */,
+				F9FE0DB22F594A00008DFB0E /* ane_model_compiler.m in Sources */,
 				9F046C3D29223E1500BDE4E9 /* CodeAppExtension.swift in Sources */,
 				949B3CC525DEA89B00BC83B5 /* String+toCString.swift in Sources */,
 				9F3C2DF7291CCE9A00BFF14C /* Remote.swift in Sources */,
 				94BEF1312B74AEBD003BBF5D /* UIFont+YYAdd.m in Sources */,
+				F9FE0DA42F5948E0008DFB0E /* ANEInferenceEngine.swift in Sources */,
+				F9FE0DA52F5948E0008DFB0E /* ANELLMService.swift in Sources */,
+				F9FE0DA62F5948E0008DFB0E /* ANEModelCompiler.swift in Sources */,
 				948D12222583F2A5008F877A /* Executor.swift in Sources */,
 				944EEBF42563C381009D77FE /* CodeApp.swift in Sources */,
 				9FC673842AA068EE00346FD7 /* PortForwardServiceProvider.swift in Sources */,
@@ -4035,7 +4162,10 @@
 				949D788A2C33DC3F006D7480 /* AppExtensionError.swift in Sources */,
 				94A777A8257ABEBE008FE7B2 /* DirectoryFolderMonitor.swift in Sources */,
 				948A5FE92A87B09500303C12 /* NSError+init.swift in Sources */,
+				F972094F2F46395B00DA803A /* WasminspectService.swift in Sources */,
+				F97209502F46395B00DA803A /* WasminspectMIAdapter.swift in Sources */,
 				1C4C8E942EA89089008E5E33 /* ChatExtension.swift in Sources */,
+				AAB10002302B000100AABB01 /* VibeCodingView.swift in Sources */,
 				9FD5BCE929238B6C00F20C4B /* TerminalExtension.swift in Sources */,
 				941969252802AB2C008AAEB2 /* FileSystemProvider.swift in Sources */,
 				9474D2942B6B461E00CCC530 /* MonacoImplementation.swift in Sources */,
@@ -4071,7 +4201,9 @@
 				1C9606B62EAA93990033D6E2 /* InlineCompletionService.swift in Sources */,
 				94A7779F257ABD7A008FE7B2 /* MainApp.swift in Sources */,
 				9FD0FAF02938A14C007170F5 /* EncodingMenu.swift in Sources */,
+				F97209422F46383C00DA803A /* DebuggerExtension.swift in Sources */,
 				9FA122602A8B29FB00E7B417 /* MonacoEditorExtension.swift in Sources */,
+				F97209492F46390B00DA803A /* DebuggerService.swift in Sources */,
 				9FC03E742920CF1700DECD1B /* Notification.swift in Sources */,
 				9FA1225C2A8B209500E7B417 /* CodeAppContributionPointManager.swift in Sources */,
 				947313122BDFB80D004A9960 /* ExtensionCommunicationHelper.swift in Sources */,
@@ -4177,7 +4309,7 @@
 					"$(PROJECT_DIR)/Resources/Java/java-frameworks",
 				);
 				INFOPLIST_FILE = CodeUI.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4225,7 +4357,7 @@
 				);
 				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = CodeUI.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4266,7 +4398,7 @@
 					"$(PROJECT_DIR)/Resources/Java/java-frameworks",
 				);
 				INFOPLIST_FILE = NodeExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4305,7 +4437,7 @@
 					"$(PROJECT_DIR)/Resources/Java/java-frameworks",
 				);
 				INFOPLIST_FILE = NodeExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4475,7 +4607,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = CodeApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4522,7 +4654,7 @@
 				GCC_OPTIMIZATION_LEVEL = s;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = CodeApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4550,7 +4682,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4TU5ZVD74N;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "vickiegpt.VS-Code.codeuitests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4570,7 +4702,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4TU5ZVD74N;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "vickiegpt.VS-Code.codeuitests";
 				PRODUCT_NAME = "$(TARGET_NAME)";

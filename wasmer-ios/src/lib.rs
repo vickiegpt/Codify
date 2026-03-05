@@ -6,7 +6,7 @@ use std::os::unix::io::{RawFd, FromRawFd};
 use std::io::SeekFrom;
 use std::pin::Pin;
 use std::task::{Context, Poll};
-use wasmer::{Store, Module, Instance, Value};
+use wasmer::{Store, Module, Value};
 use wasmer_wasix::{WasiEnvBuilder, PluggableRuntime};
 use wasmer_wasix::runtime::task_manager::tokio::TokioTaskManager;
 use wasmer_wasix::virtual_fs::{VirtualFile, FsError};
@@ -166,30 +166,6 @@ pub extern "C" fn wasmer_execute(
     }
 }
 
-/// Convenience entrypoint to execute a CPython WASM runtime using Wasmer.
-/// This simply forwards to `wasmer_execute` and exists to provide a stable
-/// symbol tailored for Python integrations on iOS.
-#[no_mangle]
-pub extern "C" fn wasmer_python_execute(
-    python_wasm_bytes_ptr: *const u8,
-    python_wasm_bytes_len: usize,
-    args_ptr: *const *const c_char,
-    args_len: usize,
-    stdin_fd: i32,
-    stdout_fd: i32,
-    stderr_fd: i32,
-) -> i32 {
-    wasmer_execute(
-        python_wasm_bytes_ptr,
-        python_wasm_bytes_len,
-        args_ptr,
-        args_len,
-        stdin_fd,
-        stdout_fd,
-        stderr_fd,
-    )
-}
-
 fn execute_wasm(
     wasm_bytes: &[u8],
     args: &[String],
@@ -199,7 +175,7 @@ fn execute_wasm(
 ) -> Result<i32, Box<dyn std::error::Error>> {
     // Create a tokio runtime for wasmer-wasix with larger stack size
     // Default stack size may be too small for some WASM programs
-    let rt = tokio::runtime::Builder::new_current_thread()
+    let rt = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .thread_stack_size(8 * 1024 * 1024) // 8MB stack (increased from default ~2MB)
         .build()?;
@@ -281,17 +257,23 @@ async fn execute_wasm_async(
         }
     }
 
-    let mut wasi_env = wasi_env_builder.finalize(&mut store)?;
+    // Preopen host directories listed in WASM_PREOPENS (colon-separated)
+    if let Ok(preopens) = std::env::var("WASM_PREOPENS") {
+        for dir in preopens.split(':') {
+            if !dir.is_empty() {
+                wasi_env_builder = wasi_env_builder.preopen_dir(dir)?;
+            }
+        }
+    }
 
-    // Generate WASI imports
-    let import_object = wasi_env.import_object(&mut store, &module)?;
-
-    // Instantiate the module
-    let instance = Instance::new(&mut store, &module, &import_object)?;
-
-    // Initialize the WASI environment with the instance
-    // This is critical - it sets up wasi_env.inner
-    wasi_env.initialize(&mut store, instance.clone())?;
+    // Use the high-level instantiate() which handles:
+    // - Memory creation for imported memories (e.g., env.memory)
+    // - Import generation for ALL WASI/WASIX versions the module needs
+    //   (import_object() only generates for a single detected version,
+    //    missing wasix_32v1 functions like fd_dup)
+    // - Proper WasiEnv initialization
+    let (instance, _wasi_env) = wasi_env_builder.instantiate(module.clone(), &mut store)
+        .map_err(|e| format!("Failed to instantiate WASI module: {}", e))?;
 
     // Find and call the _start or main function
     let exit_code = if let Ok(start_func) = instance.exports.get_function("_start") {

@@ -13,6 +13,7 @@ class EditorContextMenu {
     var onExplainCode: ((String) -> Void)?
     var onGenerateCode: (() -> Void)?
     var onAddToChat: ((String) -> Void)?
+    var onEditWithAI: ((String) -> Void)?
 
     init(editorImplementation: any EditorImplementation) {
         self.editorImplementation = editorImplementation
@@ -74,10 +75,21 @@ class EditorContextMenu {
             }
         }
 
+        let editWithAIAction = UIAction(
+            title: NSLocalizedString("Edit with AI", comment: ""),
+            image: UIImage(systemName: "wand.and.stars")
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            Task {
+                let selection = await self.editorImplementation?.getSelectedValue() ?? ""
+                self.onEditWithAI?(selection)
+            }
+        }
+
         return UIMenu(
             title: "",
             options: .displayInline,
-            children: [addToChatAction, explainAction, generateAction]
+            children: [editWithAIAction, addToChatAction, explainAction, generateAction]
         )
     }
 

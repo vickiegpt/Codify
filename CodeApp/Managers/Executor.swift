@@ -179,6 +179,14 @@ class Executor {
             return
         }
 
+        // Intercept node/npm/npx directly to avoid iOS dlsym limitations
+        // (replaceCommand can't find @_cdecl functions via dlsym on iOS)
+        let cmdName = command.split(separator: " ", maxSplits: 1).first.map(String.init) ?? command
+        if ["node", "npm", "npx", "nodeg"].contains(cmdName) {
+            handleNodeCommand(command: command, cmdName: cmdName, completionHandler: completionHandler)
+            return
+        }
+
         var stdin_pipe = Pipe()
         stdin_file = fdopen(stdin_pipe.fileHandleForReading.fileDescriptor, "r")
         while stdin_file == nil {
@@ -396,6 +404,87 @@ class Executor {
             close(stdout_pipe.fileHandleForReading.fileDescriptor)
 
             // Flush output
+            fflush(thread_stdout)
+            fflush(thread_stderr)
+
+            DispatchQueue.main.async {
+                self.state = .idle
+                completionHandler(exitCode)
+            }
+        }
+    }
+
+    private func handleNodeCommand(command: String, cmdName: String, completionHandler: @escaping (Int32) -> Void) {
+        // Set up stdin pipe
+        var stdin_pipe = Pipe()
+        stdin_file = fdopen(stdin_pipe.fileHandleForReading.fileDescriptor, "r")
+        while stdin_file == nil {
+            stdin_pipe = Pipe()
+            stdin_file = fdopen(stdin_pipe.fileHandleForReading.fileDescriptor, "r")
+        }
+        stdin_file_input = stdin_pipe.fileHandleForWriting
+
+        // Set up stdout/stderr pipes
+        var stdout_pipe = Pipe()
+        stdout_file = fdopen(stdout_pipe.fileHandleForWriting.fileDescriptor, "w")
+        while stdout_file == nil {
+            stdout_pipe = Pipe()
+            stdout_file = fdopen(stdout_pipe.fileHandleForWriting.fileDescriptor, "w")
+        }
+        stdout_pipe.fileHandleForReading.readabilityHandler = self.onStdout
+        stdout_active = true
+
+        let queue = DispatchQueue(label: "node-command", qos: .utility)
+        queue.async {
+            self.state = .running
+            Thread.current.name = command
+
+            ios_switchSession(self.persistentIdentifier.toCString())
+            ios_setDirectoryURL(self.currentWorkingDirectory)
+            ios_setContext(UnsafeMutableRawPointer(mutating: self.persistentIdentifier.toCString()))
+            ios_setStreams(self.stdin_file, self.stdout_file, self.stdout_file)
+
+            // Parse command into argc/argv and call the corresponding @_cdecl function
+            let components = command.split(separator: " ").map { String($0) }
+            var cStrings = components.map { strdup($0) }
+            cStrings.append(nil)
+
+            defer {
+                for ptr in cStrings where ptr != nil {
+                    free(ptr)
+                }
+            }
+
+            let argc = Int32(components.count)
+            let argv = UnsafeMutablePointer(mutating: cStrings)
+
+            let exitCode: Int32
+            switch cmdName {
+            case "node":
+                exitCode = node(argc: argc, argv: argv)
+            case "npm":
+                exitCode = npm(argc: argc, argv: argv)
+            case "npx":
+                exitCode = npx(argc: argc, argv: argv)
+            case "nodeg":
+                exitCode = nodeg(argc: argc, argv: argv)
+            default:
+                exitCode = 1
+            }
+
+            close(stdin_pipe.fileHandleForReading.fileDescriptor)
+            self.stdin_file_input = nil
+
+            let writeOpen = fcntl(stdout_pipe.fileHandleForWriting.fileDescriptor, F_GETFD)
+            if writeOpen >= 0 {
+                stdout_pipe.fileHandleForWriting.write(self.END_OF_TRANSMISSION.data(using: .utf8)!)
+                while self.stdout_active {
+                    fflush(thread_stdout)
+                }
+            }
+
+            close(stdout_pipe.fileHandleForReading.fileDescriptor)
+
             fflush(thread_stdout)
             fflush(thread_stderr)
 

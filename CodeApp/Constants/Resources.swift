@@ -28,4 +28,8 @@ class Resources {
     static let carcert = Bundle.main.url(forResource: "cacert", withExtension: "pem")!
 
     static let npm = Bundle.main.url(forResource: "npm", withExtension: "bundle")!
+
+    static let nodeWasm = Bundle.main.url(forResource: "node", withExtension: "wasm")
+
+    static let ggufModel = Bundle.main.url(forResource: "Qwen3.5-0.8B-Q8_0", withExtension: "gguf")
 }

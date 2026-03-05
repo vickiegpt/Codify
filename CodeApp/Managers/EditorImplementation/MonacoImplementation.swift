@@ -104,6 +104,10 @@ class MonacoImplementation: NSObject {
             self?.handleAddToChat(code: code)
         }
 
+        contextMenu?.onEditWithAI = { [weak self] code in
+            self?.handleEditWithAI(code: code)
+        }
+
         monacoWebView.setupContextMenu { [weak self] hasSelection in
             guard let self = self else { return UIMenu(children: []) }
             return self.contextMenu?.buildContextMenu(hasSelection: hasSelection) ?? UIMenu(children: [])
@@ -156,6 +160,23 @@ class MonacoImplementation: NSObject {
                     object: nil
                 )
             }
+        }
+    }
+
+    private func handleEditWithAI(code: String) {
+        Task { @MainActor in
+            // Show the right panel
+            NotificationCenter.default.post(
+                name: Notification.Name("rightPanel.show"),
+                object: nil
+            )
+
+            // Pass selected code to the chat panel's edit mode
+            NotificationCenter.default.post(
+                name: VibeCodingNotification.editSelection,
+                object: nil,
+                userInfo: [VibeCodingNotification.selectedCodeKey: code]
+            )
         }
     }
 

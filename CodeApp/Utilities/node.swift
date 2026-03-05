@@ -50,6 +50,56 @@ func launchCommandInExtension(args: [String]?) -> Int32 {
     return 0
 }
 
+// MARK: - Wasmer node.wasm support
+
+
+@_silgen_name("wasmer_execute")
+func wasmer_node_run(
+    _ wasmBytes: UnsafePointer<UInt8>,
+    _ wasmBytesLen: Int,
+    _ args: UnsafePointer<UnsafePointer<Int8>?>?,
+    _ argsLen: Int,
+    _ stdinFd: Int32,
+    _ stdoutFd: Int32,
+    _ stderrFd: Int32
+) -> Int32
+
+private func loadNodeWasm() -> Data? {
+    // Load from app bundle (added via "Copy Bundle Resources" build phase)
+    if let url = Resources.nodeWasm,
+       let data = try? Data(contentsOf: url) {
+        return data
+    }
+    fputs("node.wasm not found in app bundle.\n", thread_stderr)
+    return nil
+}
+
+private func runNodeWasm(args: [String]) -> Int32 {
+    guard let nodeData = loadNodeWasm() else { return -1 }
+
+    // Preopen host filesystem via env hack so node.wasm can read JS files
+    setenv("WASM_PREOPENS", "/", 1)
+    defer { unsetenv("WASM_PREOPENS") }
+
+    var cStrings: [UnsafePointer<Int8>?] = args.map { strdup($0) }.map { UnsafePointer($0) }
+    cStrings.append(nil)
+    defer { cStrings.forEach { if let s = $0 { free(UnsafeMutablePointer(mutating: s)) } } }
+
+    let stdinFd  = (thread_stdin  != nil) ? fileno(thread_stdin)  : STDIN_FILENO
+    let stdoutFd = (thread_stdout != nil) ? fileno(thread_stdout) : STDOUT_FILENO
+    let stderrFd = (thread_stderr != nil) ? fileno(thread_stderr) : STDERR_FILENO
+
+    return nodeData.withUnsafeBytes { buf -> Int32 in
+        guard let base = buf.baseAddress?.assumingMemoryBound(to: UInt8.self) else { return -1 }
+        return cStrings.withUnsafeBufferPointer { ptr in
+            wasmer_node_run(base, buf.count, ptr.baseAddress, args.count,
+                            stdinFd, stdoutFd, stderrFd)
+        }
+    }
+}
+
+// MARK: - java / javac (still use extension)
+
 @_cdecl("java")
 public func java(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePointer<Int8>?>?) -> Int32 {
     return launchCommandInExtension(args: convertCArguments(argc: argc, argv: argv))
@@ -60,16 +110,15 @@ public func javac(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePointer<I
     return launchCommandInExtension(args: convertCArguments(argc: argc, argv: argv))
 }
 
+// MARK: - node / npm / npx / nodeg (use wasmer_execute via node.wasm)
+
 @_cdecl("node")
 public func node(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePointer<Int8>?>?) -> Int32 {
-    let args = convertCArguments(argc: argc, argv: argv)
-
-    if args?.count == 1 {
-        fputs("Welcome to Node.js v18.19.0. \nREPL is unavailable in Code App.\n", thread_stderr)
+    guard let args = convertCArguments(argc: argc, argv: argv), args.count > 1 else {
+        fputs("Welcome to Node.js (WASM). REPL is unavailable in Code App.\n", thread_stderr)
         return 1
     }
-
-    return launchCommandInExtension(args: args)
+    return runNodeWasm(args: args)
 }
 
 @_cdecl("npm")
@@ -125,7 +174,7 @@ public func npm(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePointer<Int
                         return 1
                     }
                     if cmd == "node" {
-                        return launchCommandInExtension(args: script.components(separatedBy: " "))
+                        return runNodeWasm(args: script.components(separatedBy: " "))
                     }
 
                     script.removeFirst(cmd.count)
@@ -163,9 +212,7 @@ public func npm(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePointer<Int
                                 }
 
                                 print(["node", prettierPath, script])
-                                return launchCommandInExtension(args: [
-                                    "node", prettierPath, script,
-                                ])
+                                return runNodeWasm(args: ["node", prettierPath, script])
                             }
                         }
                     }
@@ -191,7 +238,7 @@ public func npm(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePointer<Int
                         }
                     }
 
-                    return launchCommandInExtension(args: ["node", bin.path] + cmdArgs)
+                    return runNodeWasm(args: ["node", bin.path] + cmdArgs)
                 } else {
                     fputs("npm ERR! missing script: \(args[1])\n", thread_stderr)
                 }
@@ -206,7 +253,9 @@ public func npm(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePointer<Int
     let npmURL = Resources.npm.appendingPathComponent("node_modules/.bin/npm")
     args = ["node", "--optimize-for-size", npmURL.path] + args
 
-    return launchCommandInExtension(args: args)
+    let result = runNodeWasm(args: args)
+    refreshNodeCommands()
+    return result
 }
 
 @_cdecl("npx")
@@ -244,7 +293,7 @@ public func npx(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePointer<Int
 
     args.removeFirst()
 
-    return launchCommandInExtension(args: ["node", bin.path] + args)
+    return runNodeWasm(args: ["node", bin.path] + args)
 }
 
 @_cdecl("nodeg")
@@ -270,7 +319,7 @@ public func nodeg(argc: Int32, argv: UnsafeMutablePointer<UnsafeMutablePointer<I
         }
     }
 
-    args = ["node", prettierPath] + args  // + ["--prefix", workingPath]
+    args = ["node", prettierPath] + args
 
-    return launchCommandInExtension(args: args)
+    return runNodeWasm(args: args)
 }

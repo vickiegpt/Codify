@@ -117,7 +117,7 @@ class WasminspectMIAdapter: ObservableObject {
         let cmd = miCmd.hasPrefix("-") ? miCmd : "-" + miCmd
 
         // MI command mappings to LLDB
-        switch {
+        switch true {
         case cmd.hasPrefix("-exec-run"):
             return "process launch"
 
@@ -315,13 +315,13 @@ class WasminspectMIAdapter: ObservableObject {
 
             var level = "0"
             var addr = "0x0"
-            var func = "??"
+            var funcName = "??"
             var file = ""
             var line = "0"
 
             if let r = Range(match.range(at: 1), in: frame) { level = String(frame[r]) }
             if let r = Range(match.range(at: 2), in: frame) { addr = "0x" + String(frame[r]) }
-            if let r = Range(match.range(at: 3), in: frame) { func = String(frame[r]) }
+            if let r = Range(match.range(at: 3), in: frame) { funcName = String(frame[r]) }
             if match.numberOfRanges > 4, let r = Range(match.range(at: 4), in: frame) {
                 file = String(frame[r])
             }
@@ -329,7 +329,7 @@ class WasminspectMIAdapter: ObservableObject {
                 line = String(frame[r])
             }
 
-            return "frame={level=\"\(level)\",addr=\"\(addr)\",func=\"\(func)\",file=\"\(file)\",line=\"\(line)\"}"
+            return "frame={level=\"\(level)\",addr=\"\(addr)\",func=\"\(funcName)\",file=\"\(file)\",line=\"\(line)\"}"
         }
 
         return "~\"\(frame)\""

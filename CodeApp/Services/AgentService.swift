@@ -63,10 +63,23 @@ class AgentService: ObservableObject {
     @Published var isProcessing: Bool = false
 
     private var llmService: CoreMLLLMService
+    private var aneLLMService: ANELLMService
     private var currentTask: Task<Void, Never>?
+
+    /// Returns whichever LLM backend currently has a model loaded (ANE preferred)
+    var activeLLMService: CoreMLLLMService {
+        // ANE is used via sendMessageViaActiveLLM; CoreML is the fallback
+        return llmService
+    }
+
+    /// Whether ANE backend is available and loaded
+    var isANEActive: Bool {
+        return aneLLMService.modelLoaded
+    }
 
     private init() {
         self.llmService = CoreMLLLMService.shared
+        self.aneLLMService = ANELLMService.shared
     }
 
     // MARK: - Session Management
@@ -126,6 +139,14 @@ class AgentService: ObservableObject {
         }
     }
 
+    /// Send a message via whichever LLM backend is active (ANE preferred)
+    private func sendMessageViaActiveLLM(_ prompt: String) async -> String {
+        if aneLLMService.modelLoaded {
+            return await aneLLMService.sendMessage(prompt)
+        }
+        return await llmService.sendMessage(prompt)
+    }
+
     /// Analyze instruction and create a plan
     private func analyzeAndPlan(session: AgentSession) async {
         let prompt = """
@@ -142,7 +163,7 @@ class AgentService: ObservableObject {
         Provide a numbered list of specific steps you would take to implement this change. Be concrete and specific.
         """
 
-        let plan = await llmService.sendMessage(prompt)
+        let plan = await sendMessageViaActiveLLM(prompt)
 
         // Parse thinking steps from the plan
         let steps = plan.components(separatedBy: .newlines)
@@ -187,7 +208,7 @@ class AgentService: ObservableObject {
         You can specify multiple actions. Be precise with line numbers (1-indexed).
         """
 
-        let response = await llmService.sendMessage(prompt)
+        let response = await sendMessageViaActiveLLM(prompt)
 
         // Parse actions from response
         let actions = parseActions(from: response, fileContent: session.fileContent)
@@ -360,6 +381,41 @@ class AgentService: ObservableObject {
         Task { @MainActor in
             session.status = .failed
             cancelSession(session)
+        }
+    }
+
+    /// Create a new session with combined instruction for iterative refinement
+    func refineSession(
+        originalSession: AgentSession,
+        feedback: String,
+        updatedFileContent: String
+    ) -> AgentSession {
+        // Mark the original as failed/done
+        Task { @MainActor in
+            originalSession.status = .failed
+        }
+
+        let refinedInstruction = """
+        Original instruction: \(originalSession.instruction)
+
+        The previous changes were rejected with this feedback: \(feedback)
+
+        Please try again with the feedback in mind.
+        """
+
+        return startSession(
+            instruction: refinedInstruction,
+            filePath: originalSession.filePath,
+            fileContent: updatedFileContent
+        )
+    }
+
+    /// Remove all sessions and cancel current processing
+    func clearAllSessions() {
+        currentTask?.cancel()
+        Task { @MainActor in
+            activeSessions.removeAll()
+            isProcessing = false
         }
     }
 }
